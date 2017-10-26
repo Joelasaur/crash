@@ -9,4 +9,9 @@ include_directories(${GTEST_INCLUDE_DIRS})
 add_executable(runTests tests.cpp)
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 
-#Get all *.cpp files 
+add_executable(crash main.cpp crash.cpp)
+
+# Set C++ compiler 
+SET(CMAKE_CXX_FLAGS "-std=c++11")
+
+# TODO: Get all *.cpp files 
