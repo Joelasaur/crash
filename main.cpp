@@ -1,14 +1,19 @@
 #include "crash.h"
 #include <iostream>
+#include <string>
 
 using namespace std;
 
-extern char * environ[];
+extern char ** environ;
 
 int main (int argc, char * argv[]){
-	vector<string> args(argv, argv + argc); //Convert argv into a vector for easier manipulation
-	crash * cr = new crash(args, environ);
-	cr->printArgs();
+	string rawArgs;
+
+	cout << "Welcome to crash!! Please enter a command:" << endl;
+	getline(cin, rawArgs);
+
+	crash * cr = new crash(rawArgs, environ);
 	cr->findPATH();
-	cout << "PATH: " << cr->path << endl;
+
+	cr->parseArgs();
 }

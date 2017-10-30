@@ -1,3 +1,6 @@
+
+# Use "-DCMAKE_BUILD_TYPE=Debug" argument to build for gdb debugging
+
 cmake_minimum_required(VERSION 2.6)
 project(crash CXX)
 
@@ -13,5 +16,3 @@ add_executable(crash main.cpp crash.cpp)
 
 # Set C++ compiler 
 SET(CMAKE_CXX_FLAGS "-std=c++11")
-
-# TODO: Get all *.cpp files 

@@ -12,7 +12,7 @@ namespace {
 	class Test_Crash : public ::testing::Test {
 
 	protected:
-		vector<string> args;
+		string args;
 		crash * cr;
 
 		Test_Crash() {
@@ -22,7 +22,7 @@ namespace {
 		}
 
 		virtual void SetUp() {
-			args = {"ls", "-l"};
+			args = "ls -l";
 			cr = new crash(args, environ);
 		}
 
@@ -30,9 +30,10 @@ namespace {
 		}
 	};
 
-	TEST_F(Test_Crash, BuildCrashObject) {
-		ASSERT_EQ(cr->args[0], "ls");
-		ASSERT_EQ(cr->args[1], "-l");
+	TEST_F(Test_Crash, SplitArgs) {
+		vector<string> splitArgs = cr->split(args, ' ');
+		ASSERT_EQ(splitArgs[0], "ls");
+		ASSERT_EQ(splitArgs[1], "-l");
 	}
 
 	TEST_F(Test_Crash, FindPathEnvironmentVariable) {
@@ -43,13 +44,23 @@ namespace {
 	TEST_F(Test_Crash, SplitEnvironmentPath) {
 		cr->findPATH();
 
-		vector<string> paths = cr->splitPaths();
+		vector<string> paths = cr->split(cr->path, ':');
 		ASSERT_EQ(paths[0], "/usr/local/sbin");
 		ASSERT_EQ(paths[5], "/bin");
 	}
 
-	TEST_F(Test_Crash, ForkAndExecls-l) {
-		
+	TEST_F(Test_Crash, ForkAndExecls) {
+	}
+
+	TEST_F(Test_Crash, cmdExists) {
+		ASSERT_TRUE(cr->cmdExists("/bin/", "ls"));
+	}
+
+	TEST_F(Test_Crash, findCmdPath) {
+		cr->findPATH();
+		string expected = "/bin/ls";
+		string result = cr->findCmdPath("ls");
+		ASSERT_EQ(expected, result);
 	}
 
 } // Namespace

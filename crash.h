@@ -9,13 +9,16 @@ using namespace std;
 
 class crash {
 public:
-	vector<string> args;
+	string args;
 	string path;
 	char ** environVars;
-	crash(vector<string> args, char * environVars[]);
+	crash(string args, char * environVars[]);
 	~crash(void);
 
-	void printArgs(void);
 	void findPATH(void);
-	vector<string> splitPaths(void);
+	string findCmdPath(string cmd);
+	bool cmdExists(string dir, string cmd);
+	vector<string> split(string input, char token);
+	void parseArgs(void);
+	void forkAndExec(string path, string cmd);
 };
