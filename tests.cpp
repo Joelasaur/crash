@@ -1,5 +1,5 @@
-// tests.cpp
 #include "crash.cpp"
+#include "command.cpp"
 #include <gtest/gtest.h>
 #include <vector>
 #include <string>
@@ -12,8 +12,9 @@ namespace {
 	class Test_Crash : public ::testing::Test {
 
 	protected:
-		string args;
+		string input;
 		crash * cr;
+		command * cmd;
 
 		Test_Crash() {
 		}
@@ -22,18 +23,21 @@ namespace {
 		}
 
 		virtual void SetUp() {
-			args = "ls -l";
-			cr = new crash(args, environ);
+			input = "ls -l -a";
+			cr = new crash(input, environ);
+			vector<string> args = {"-l", "-a"};
+			cmd = new command("ls", args, ENV_PATH);
 		}
 
 		virtual void TearDown() {
 		}
 	};
 
-	TEST_F(Test_Crash, SplitArgs) {
-		vector<string> splitArgs = cr->split(args, ' ');
-		ASSERT_EQ(splitArgs[0], "ls");
-		ASSERT_EQ(splitArgs[1], "-l");
+	TEST_F(Test_Crash, SplitInput) {
+		vector<string> splitInput = command::split(input, ' ');
+		ASSERT_EQ(splitInput[0], "ls");
+		ASSERT_EQ(splitInput[1], "-l");
+		ASSERT_EQ(splitInput[2], "-a");
 	}
 
 	TEST_F(Test_Crash, FindPathEnvironmentVariable) {
@@ -44,22 +48,20 @@ namespace {
 	TEST_F(Test_Crash, SplitEnvironmentPath) {
 		cr->findPATH();
 
-		vector<string> paths = cr->split(cr->path, ':');
+		vector<string> paths = command::split(cr->path, ':');
 		ASSERT_EQ(paths[0], "/usr/local/sbin");
 		ASSERT_EQ(paths[5], "/bin");
 	}
 
-	TEST_F(Test_Crash, ForkAndExecls) {
-	}
-
 	TEST_F(Test_Crash, cmdExists) {
-		ASSERT_TRUE(cr->cmdExists("/bin/", "ls"));
+		ASSERT_TRUE(cmd->cmdExists("/bin/"));
 	}
 
 	TEST_F(Test_Crash, findCmdPath) {
 		cr->findPATH();
 		string expected = "/bin/ls";
-		string result = cr->findCmdPath("ls");
+		cmd->findCmdPath();
+		string result = cmd->cmdPath;
 		ASSERT_EQ(expected, result);
 	}
 

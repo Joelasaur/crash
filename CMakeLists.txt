@@ -12,7 +12,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 add_executable(runTests tests.cpp)
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 
-add_executable(crash main.cpp crash.cpp)
+add_executable(crash main.cpp crash.cpp command.cpp)
 
 # Set C++ compiler 
 SET(CMAKE_CXX_FLAGS "-std=c++11")

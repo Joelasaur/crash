@@ -1,10 +1,9 @@
-#ifndef CRASH_H
-#define CRASH_H
-#endif
+#ifndef _CRASH_H
+#define _CRASH_H
 
 #include <vector>
 #include <string>
-
+#include "command.h"
 using namespace std;
 
 class crash {
@@ -12,13 +11,12 @@ public:
 	string args;
 	string path;
 	char ** environVars;
+	command * cmd;
 	crash(string args, char * environVars[]);
 	~crash(void);
 
-	void findPATH(void);
-	string findCmdPath(string cmd);
-	bool cmdExists(string dir, string cmd);
-	vector<string> split(string input, char token);
+	void findPATH(void);	
 	void parseArgs(void);
-	void forkAndExec(string path, string cmd);
 };
+
+#endif
