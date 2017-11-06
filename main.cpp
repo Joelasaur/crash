@@ -13,7 +13,6 @@ int main (int argc, char * argv[]){
 	getline(cin, rawArgs);
 
 	crash * cr = new crash(rawArgs, environ);
-	cr->findPATH();
 
 	cr->parseArgs();
 }

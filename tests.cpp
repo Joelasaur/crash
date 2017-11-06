@@ -15,6 +15,7 @@ namespace {
 		string input;
 		crash * cr;
 		command * cmd;
+		vector<string> args;
 
 		Test_Crash() {
 		}
@@ -25,7 +26,7 @@ namespace {
 		virtual void SetUp() {
 			input = "ls -l -a";
 			cr = new crash(input, environ);
-			vector<string> args = {"-l", "-a"};
+			args = {"-l", "-a"};
 			cmd = new command("ls", args, ENV_PATH);
 		}
 
@@ -62,6 +63,14 @@ namespace {
 		string expected = "/bin/ls";
 		cmd->findCmdPath();
 		string result = cmd->cmdPath;
+		ASSERT_EQ(expected, result);
+	}
+
+	TEST_F(Test_Crash, badCommandCleanExit) {
+		args.clear();
+		command * cmd_bad = new command("lssss", args, ENV_PATH);
+		string expected = "";
+		string result = cmd_bad->findCmdPath();
 		ASSERT_EQ(expected, result);
 	}
 

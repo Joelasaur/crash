@@ -52,7 +52,7 @@ This method was pure cancer for me to figure out, and I actually still don't und
 a proper unit test for it lmao ¯\_(ツ)_/¯
 */
 char ** command::vectorToCharArray(vector<string> strings) {
-	char** cstrings = new char*[strings.size()]; //allocate enough room to null terminate the c array
+	char** cstrings = new char*[strings.size()]; 
 
 	size_t i = 0;
 	while(i < strings.size()) {
@@ -79,7 +79,7 @@ string command::findCmdPath() {
 		}
 		p++;
 	}
-	return NULL;
+	return "";
 }
 
 // Adapted this method from stackoverflow:
@@ -96,6 +96,10 @@ void command::forkAndExec() {
 	}
 	else {
 		string pth = findCmdPath();
+		if (pth == "") {
+			cout << "Error: Could not find command " << cmd << endl;
+			exit(1);
+		}
 		cout << "Trying " << cmdPath.c_str() << endl;
 		args[0] = pth; //pre-pend the path to the command
 		char ** cmdArgs = vectorToCharArray(args);
