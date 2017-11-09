@@ -1,18 +1,20 @@
 #include "crash.h"
 #include <iostream>
 #include <string>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <cstdio>
 
 using namespace std;
 
 extern char ** environ;
 
 int main (int argc, char * argv[]){
-	string rawArgs;
+	char * buf;
+	while((buf = readline("Enter a command: > ")) != NULL) {
+		string s(buf);
+		crash * cr = new crash(buf, environ);
 
-	cout << "Welcome to crash!! Please enter a command:" << endl;
-	getline(cin, rawArgs);
-
-	crash * cr = new crash(rawArgs, environ);
-
-	cr->parseArgs();
-}
+		cr->parseArgs();
+	}
+}	

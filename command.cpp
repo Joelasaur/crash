@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <iostream>
+#include <cstdlib>
 
 // Local Includes
 #include "command.h"
