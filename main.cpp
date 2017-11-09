@@ -14,7 +14,9 @@ int main (int argc, char * argv[]){
 	while((buf = readline("Enter a command: > ")) != NULL) {
 		string s(buf);
 		crash * cr = new crash(buf, environ);
-
+		if (buf[0] != 0) {
+			add_history(buf);
+		}
 		cr->parseArgs();
 	}
 }	

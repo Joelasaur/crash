@@ -27,6 +27,13 @@ command::~command(void) {
 
 }
 
+void command::error(const char *msg, bool flag) {
+	if (flag) {
+		perror(msg);
+		exit(1);
+	}
+}
+
 // Adapted this method from a combination of answers from stack overflow:
 // https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c
 // https://stackoverflow.com/questions/236129/the-most-elegant-way-to-iterate-the-words-of-a-string
@@ -83,28 +90,32 @@ string command::findCmdPath() {
 	return "";
 }
 
+void command::execChild() {
+	if (args[0] == "cd") {
+		error("Change Directory failed", chdir(args[1].c_str()) < 0);
+	}
+	else {
+		string pth = findCmdPath();
+		error("Could not find command", pth == "");
+		args[0] = pth; //pre-pend the path to the command
+		char ** cmdArgs = vectorToCharArray(args);
+		execv(cmdPath.c_str(), cmdArgs);
+	}
+}
+
 // Adapted this method from stackoverflow:
 // https://stackoverflow.com/questions/19099663/how-to-correctly-use-fork-exec-wait
 void command::forkAndExec() {
 	pid_t pid = fork();
-	if (pid == -1) {
-		cout << "Fork failed" << endl;
-		exit(1);
-	}
-	else if (pid > 0) {
+	error("Fork failed", pid == -1);
+	if (pid > 0) {
+		// We are the parent
     	int status;
     	waitpid(pid, &status, 0);
 	}
 	else {
-		string pth = findCmdPath();
-		if (pth == "") {
-			cout << "Error: Could not find command " << cmd << endl;
-			exit(1);
-		}
-		cout << "Trying " << cmdPath.c_str() << endl;
-		args[0] = pth; //pre-pend the path to the command
-		char ** cmdArgs = vectorToCharArray(args);
-		execv(cmdPath.c_str(), cmdArgs);
+		// We are the child
+		execChild();
 	}
 
 }

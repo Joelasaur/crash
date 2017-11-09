@@ -16,12 +16,14 @@ public:
 
 	command(string cmd, vector<string> args, string path);
 	~command();
+	void error(const char *msg, bool flag);
 
 	static vector<string> split(string input, char token);
 	bool cmdExists(string dir);
 	string findCmdPath(void);
 	void forkAndExec(void);
 	char ** vectorToCharArray(vector<string> strings);
+	void execChild(void);
 
 
 };
