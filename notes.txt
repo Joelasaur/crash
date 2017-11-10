@@ -1,0 +1,68 @@
+File redirection (< and >)
+	- dup2 copies file descriptors
+
+	fd = open(file)
+	dup2(fd, 0) //0 for stdin, 1 is stdout, 2 is stderr
+
+	fd = open("fred.txt", O_RDONLY);
+
+	fork
+	if kid
+		for each arg
+			if arg is ">"
+				fdout = open for writing
+				error check
+				remove 2 args from the list
+			if arg is "<"
+				fdin = open for reading
+				error check
+				remove 2 args from the list
+
+		build the argument list
+		dup2(fd, 0)
+		for p in PATH
+			exec
+		print error
+		exit(3)
+
+
+Good reference: https://stackoverflow.com/questions/8082932/connecting-n-commands-with-pipes-in-a-shell
+Piping
+	- piping must be continuous
+	- pipe is a system call in linux
+	- MAKE SURE TO PIPE BEFORE FORK
+	- both sides have both file descriptors
+		reader must close write end of pipe (pipefd[1])
+		writer must close read end of pipe  (pipefd[0])
+
+		1. close
+		2. dup2
+		3. exec
+
+	For example, "ls | wc" would go like this:
+	if arg is "|"
+		pipe()
+		fork() //we are now at 3 copies of the program (child forks itself on pipe)
+		if kid2 "ls"
+			close the read end (pipefd[0])
+			dup2(pipefd[1], 1) //stdout
+			exec "ls"
+
+		if parent "wc"
+			close the write end (pipefd[1])
+			dup2(pipefd[0]) //stdin
+			exec "wc"
+
+
+
+using $ variables
+	-getenv() is allowed for anything besides PATH
+
+	if arg is $
+		replace with getenv(that arg without the $)
+
+; is done before the fork
+
+	if ;
+		do everything before ;
+		do everything after ;

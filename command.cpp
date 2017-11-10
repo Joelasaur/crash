@@ -97,9 +97,9 @@ void command::execChild() {
 	else {
 		string pth = findCmdPath();
 		error("Could not find command", pth == "");
-		args[0] = pth; //pre-pend the path to the command
+		args[0] = pth; //replace command with path + command
 		char ** cmdArgs = vectorToCharArray(args);
-		execv(cmdPath.c_str(), cmdArgs);
+		error("Exec failed", execv(cmdPath.c_str(), cmdArgs) == -1);
 	}
 }
 

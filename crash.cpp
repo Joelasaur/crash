@@ -15,7 +15,7 @@ crash::crash(string args, char ** environVars) {
 	this->args = args;
 	this->environVars = environVars;
 	this->path = "";
-	this->cmd = NULL;
+	this->cmds = new vector<command*>;
 }
 
 crash::~crash(void) {
@@ -33,10 +33,17 @@ void crash::findPATH(void) {
 	}
 }
 
+void crash::execCmds(void) {
+	for (auto cmdIterator = cmds->begin(); cmdIterator != cmds->end(); ++cmdIterator) {
+		(*cmdIterator)->forkAndExec();
+	}
+}
+
 void crash::parseArgs(void) {
 	findPATH();
 	vector<string> parsedArgs = command::split(args, ' ');
 	string program = parsedArgs[0];
-	cmd = new command(program, parsedArgs, path);
-	cmd->forkAndExec();
+	command * cmd = new command(program, parsedArgs, path);
+	cmds->push_back(cmd);
+	execCmds();
 }

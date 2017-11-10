@@ -11,12 +11,13 @@ public:
 	string args;
 	string path;
 	char ** environVars;
-	command * cmd;
+	vector<command *> *cmds;
 	crash(string args, char * environVars[]);
 	~crash(void);
 
 	void findPATH(void);	
 	void parseArgs(void);
+	void execCmds(void);
 };
 
 #endif

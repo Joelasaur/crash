@@ -74,6 +74,16 @@ namespace {
 		ASSERT_EQ(expected, result);
 	}
 
+	TEST_F(Test_Crash, splitCanHandleMissingTokens) {
+		vector<string> splitInput = command::split(input, '|');
+		ASSERT_EQ(splitInput[0], "ls -l -a");
+
+		string input2 = "ls -l -a | wc -w";
+		splitInput = command::split(input2, '|');
+		ASSERT_EQ(splitInput[0], "ls -l -a ");
+		ASSERT_EQ(splitInput[1], " wc -w");
+	}
+
 } // Namespace
  
 int main(int argc, char **argv) {
