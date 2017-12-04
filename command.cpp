@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <iostream>
 #include <cstdlib>
+#include <glob.h>
 
 // Local Includes
 #include "command.h"
@@ -77,6 +78,22 @@ bool command::cmdExists(string dir) {
 	return ( access( name.c_str(), F_OK ) != -1 );
 }
 
+// Adapted from stackoverflow:
+// https://stackoverflow.com/questions/8401777/simple-glob-in-c-on-unix-system
+void command::globExpand() {
+	vector<string> expandedArgs;
+	for (auto argsIterator = args.begin(); argsIterator != args.end(); ++argsIterator) {
+		glob_t glob_result;
+		string arg = *argsIterator;
+		glob(arg.c_str(), GLOB_TILDE, NULL, &glob_result);
+		for(unsigned int i = 0; i < glob_result.gl_pathc; ++i){
+			expandedArgs.push_back(string(glob_result.gl_pathv[i]));
+		}
+		globfree(&glob_result);
+	}
+	args = expandedArgs;
+}
+
 string command::findCmdPath() {
 	vector<string> splitPaths = split(PATH, ':');
 	vector<string>::iterator p = splitPaths.begin();
@@ -91,13 +108,14 @@ string command::findCmdPath() {
 }
 
 void command::execChild() {
-	if (args[0] == "cd") {
-		error("Change Directory failed", chdir(args[1].c_str()) < 0);
+	if (cmd == "cd") {
+		error("Change Directory failed", chdir(args[0].c_str()) < 0);
 	}
 	else {
-		string pth = findCmdPath();
-		error("Could not find command", pth == "");
-		args[0] = pth; //replace command with path + command
+		cmdPath = findCmdPath();
+		error("Could not find command", cmdPath == "");
+		globExpand();
+		args.insert(args.begin(), cmdPath); //prepend the command name to the arg list so execv works
 		char ** cmdArgs = vectorToCharArray(args);
 		error("Exec failed", execv(cmdPath.c_str(), cmdArgs) == -1);
 	}

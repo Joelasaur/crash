@@ -43,6 +43,7 @@ void crash::parseArgs(void) {
 	findPATH();
 	vector<string> parsedArgs = command::split(args, ' ');
 	string program = parsedArgs[0];
+	parsedArgs.erase(parsedArgs.begin());
 	command * cmd = new command(program, parsedArgs, path);
 	cmds->push_back(cmd);
 	execCmds();

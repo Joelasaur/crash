@@ -84,6 +84,18 @@ namespace {
 		ASSERT_EQ(splitInput[1], " wc -w");
 	}
 
+	TEST_F(Test_Crash, globExpand) {
+		args = {"tmp/*.txt", "tmp/nope.*"};
+		string expected1 = "tmp/test.txt";
+		string expected2 = "tmp/nope.txt";
+		command * cmd_glob = new command("touch", args, ENV_PATH);
+		cmd_glob->globExpand();
+		string result1 = cmd_glob->args[1];
+		string result2 = cmd_glob->args[2];
+		ASSERT_EQ(expected1, result1);
+		ASSERT_EQ(expected2, result2);
+	}
+
 } // Namespace
  
 int main(int argc, char **argv) {

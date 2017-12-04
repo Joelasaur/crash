@@ -20,6 +20,7 @@ public:
 
 	static vector<string> split(string input, char token);
 	bool cmdExists(string dir);
+	void globExpand(void);
 	string findCmdPath(void);
 	void forkAndExec(void);
 	char ** vectorToCharArray(vector<string> strings);
