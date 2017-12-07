@@ -78,20 +78,37 @@ bool command::cmdExists(string dir) {
 	return ( access( name.c_str(), F_OK ) != -1 );
 }
 
+// Removes all args with "*"
+// Adapted from cplusplus:
+// http://www.cplusplus.com/forum/beginner/99524/
+void command::cleanArgs() {
+	vector<string>::iterator iter = args.begin();
+	while (iter != args.end()) {
+		if ((*iter).find("*") != -1) {
+			iter = args.erase(iter);
+		}
+		else {
+			iter++;
+		}
+	}
+}
 // Adapted from stackoverflow:
 // https://stackoverflow.com/questions/8401777/simple-glob-in-c-on-unix-system
 void command::globExpand() {
 	vector<string> expandedArgs;
+	// Iterate through each argument that needs to be expanded
 	for (auto argsIterator = args.begin(); argsIterator != args.end(); ++argsIterator) {
 		glob_t glob_result;
 		string arg = *argsIterator;
 		glob(arg.c_str(), GLOB_TILDE, NULL, &glob_result);
+		// Iterate through every result that glob returns for that argument
 		for(unsigned int i = 0; i < glob_result.gl_pathc; ++i){
 			expandedArgs.push_back(string(glob_result.gl_pathv[i]));
 		}
 		globfree(&glob_result);
 	}
-	args = expandedArgs;
+	cleanArgs();
+	args.insert(args.end(), expandedArgs.begin(), expandedArgs.end());
 }
 
 string command::findCmdPath() {

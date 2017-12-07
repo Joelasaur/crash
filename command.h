@@ -19,6 +19,7 @@ public:
 	void error(const char *msg, bool flag);
 
 	static vector<string> split(string input, char token);
+	void cleanArgs(void);
 	bool cmdExists(string dir);
 	void globExpand(void);
 	string findCmdPath(void);

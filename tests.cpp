@@ -13,6 +13,7 @@ namespace {
 
 	protected:
 		string input;
+		string prompt;
 		crash * cr;
 		command * cmd;
 		vector<string> args;
@@ -25,7 +26,8 @@ namespace {
 
 		virtual void SetUp() {
 			input = "ls -l -a";
-			cr = new crash(input, environ);
+			prompt = "Enter a command >";
+			cr = new crash(input, prompt, environ);
 			args = {"-l", "-a"};
 			cmd = new command("ls", args, ENV_PATH);
 		}
@@ -84,6 +86,16 @@ namespace {
 		ASSERT_EQ(splitInput[1], " wc -w");
 	}
 
+	TEST_F(Test_Crash, cleanArgs) {
+		args = {"$HOME", "tmp/*.txt", "tmp/nope.*"};
+		command * cmd_cleanArgs = new command("echo", args, ENV_PATH);
+		cmd_cleanArgs->cleanArgs();
+		int expected = 1;
+		int result = cmd_cleanArgs->args.size();
+		ASSERT_EQ(expected, result);
+
+	}
+
 	TEST_F(Test_Crash, globExpand) {
 		args = {"tmp/*.txt", "tmp/nope.*"};
 		string expected1 = "tmp/test.txt";
@@ -94,6 +106,11 @@ namespace {
 		string result2 = cmd_glob->args[2];
 		ASSERT_EQ(expected1, result1);
 		ASSERT_EQ(expected2, result2);
+	}
+
+	TEST_F(Test_Crash, changePrompt) {
+		args.clear();
+		command * cmd_changePrompt = new command("PS1", args, ENV_PATH);
 	}
 
 } // Namespace
