@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include "command.h"
 using namespace std;
 
@@ -13,15 +14,18 @@ public:
 	string prompt;
 	char ** environVars;
 	vector<command *> *cmds;
-	crash(string args, string prompt, char * environVars[]);
+	map<string, string> *aliasMap;
+	crash(string args, string prompt, char * environVars[], map<string, string> *aliasMap);
 	~crash(void);
 
 	vector<string> expandEnvVariables(vector<string> parsedArgs);
 	static void addCmdsFromFile(string filename);
+	string getAlias(string alias);
+	string createAlias(string aliasExpression);
 	void error(const char *msg, bool flag);
 	void setEnvVariable(int position, string envVar);
 	void findPATH(void);	
-	void parseArgs(vector<string> parsedArgs);
+	int parseArgs(vector<string> parsedArgs);
 	void execCmds(void);
 };
 

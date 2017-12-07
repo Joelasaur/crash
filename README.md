@@ -9,7 +9,7 @@ Use the command "set follow-fork-mode child" within gdb to debug the child proce
 
 POINTS:
 
-The Shell Assignment (total 18 points)
+The Shell Assignment (total 20 points)
 
 	1 Can run an executable
 		/bin/ls
@@ -41,8 +41,11 @@ The Shell Assignment (total 18 points)
 		./tmp/commands.txt
 
 	2 Automatically runs a file called .myshell when it starts
-	
+
 	2 Change Prompt
 	        PS1="what is you command?"
+
+	2 Aliases work.
+		alias dir=ls
 
 

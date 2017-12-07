@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <string>
+#include <map>
 
 #define ENV_PATH "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
 
@@ -17,6 +18,7 @@ namespace {
 		crash * cr;
 		command * cmd;
 		vector<string> args;
+		map<string, string> * myAliasMap;
 
 		Test_Crash() {
 		}
@@ -27,7 +29,8 @@ namespace {
 		virtual void SetUp() {
 			input = "ls -l -a";
 			prompt = "Enter a command >";
-			cr = new crash(input, prompt, environ);
+			myAliasMap = new map<string, string>;
+			cr = new crash(input, prompt, environ, myAliasMap);
 			args = {"-l", "-a"};
 			cmd = new command("ls", args, ENV_PATH);
 		}
@@ -98,8 +101,8 @@ namespace {
 
 	TEST_F(Test_Crash, globExpand) {
 		args = {"tmp/*.txt", "tmp/nope.*"};
-		string expected1 = "tmp/test.txt";
-		string expected2 = "tmp/nope.txt";
+		string expected1 = "tmp/nope.txt";
+		string expected2 = "tmp/test.txt";
 		command * cmd_glob = new command("touch", args, ENV_PATH);
 		cmd_glob->globExpand();
 		string result1 = cmd_glob->args[1];
@@ -108,9 +111,24 @@ namespace {
 		ASSERT_EQ(expected2, result2);
 	}
 
-	TEST_F(Test_Crash, changePrompt) {
-		args.clear();
-		command * cmd_changePrompt = new command("PS1", args, ENV_PATH);
+	TEST_F(Test_Crash, createAlias) {
+		ASSERT_EQ(0, cr->aliasMap->size());
+		string ret = cr->createAlias("dir=ls");
+		string ret1 = cr->createAlias("ff=ls");
+		ASSERT_EQ("dir", ret);
+		ASSERT_EQ("ff", ret1);
+		ASSERT_EQ(2, cr->aliasMap->size());
+		string expected = "ls";
+		string result = cr->aliasMap->at("dir");
+		ASSERT_EQ(expected, result);
+		ASSERT_EQ("ls", cr->aliasMap->at("ff"));
+	}
+	TEST_F(Test_Crash, getAlias) {
+		string ret = cr->createAlias("ff=ls");
+		string expected = "ls";
+		string result = cr->getAlias("ff");
+		ASSERT_EQ(expected, result);
+
 	}
 
 } // Namespace

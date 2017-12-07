@@ -1,29 +1,3 @@
-/*
-The Shell Assignment (total 18 points)
-	1 Can run an executable
-		/bin/ls
-	1 You search the path for the executable
-		ls
-	1 Can set enviornment variables with using putenv/setenv
-		PATH=:/bin:/sbin:/usr/sbin:/usr/bin
-	2 Expands enviornment variables on the command line
-		ls $HOME
-	2 Does filename expansion "glob" (Hint:  Use the built in glob.)
-		ls a*b
-	1 Knows how to change directory
-		cd /fred
-	1 Control-L clears the screen
-		ctrl-l = clear screen
-	2 Tab Completion and Arrow History
-	1 Catch Keyboard interrupt
-		ctrl + c = back to prompt
-	2 Can run commands from a file
-		./tmp/commands.txt
-	2 Automatically runs a file called .myshell when it starts
-	2 Change Prompt
-	        PS1="what is you command?"
-*/
-
 #include "crash.h"
 #include "command.h"
 #include <iostream>
@@ -37,6 +11,7 @@ The Shell Assignment (total 18 points)
 #include <unistd.h>
 #include <sstream>
 #include <fstream>
+#include <map>
 
 using namespace std;
 
@@ -50,13 +25,13 @@ bool fileExists (const string& name) {
 
 // Adapted from stackoverflow:
 // https://stackoverflow.com/questions/7868936/read-file-line-by-line
-void addCmdsFromFile(string filename, string prompt) {
+void addCmdsFromFile(string filename, string prompt, map<string, string> * aliases) {
 	ifstream infile(filename);
 	string line;
 	vector<string> commandArgs;
 	while (getline(infile, line)) {
 		commandArgs = command::split(line, ' ');
-		crash * cr = new crash(line, prompt, environ);
+		crash * cr = new crash(line, prompt, environ, aliases);
 		cr->parseArgs(commandArgs);
 	}
 }
@@ -64,13 +39,15 @@ void addCmdsFromFile(string filename, string prompt) {
 void run(struct sigaction sigIntHandler) {
 	char * buf;
 	string prompt = "Enter a command: > ";	
+	map<string, string> * myAliasMap = new map<string, string>;
+
 	if (fileExists(DEFAULT_SHELL)) {
-		addCmdsFromFile(DEFAULT_SHELL, prompt);
+		addCmdsFromFile(DEFAULT_SHELL, prompt, myAliasMap);
 	}
 	while((buf = readline(prompt.c_str())) != NULL) {
 		sigaction(SIGINT, &sigIntHandler, NULL);
 		string s(buf);
-		crash * cr = new crash(buf, prompt, environ);
+		crash * cr = new crash(buf, prompt, environ, myAliasMap);
 		if (buf[0] != 0) {
 			add_history(buf);
 		}
@@ -79,11 +56,12 @@ void run(struct sigaction sigIntHandler) {
 		//We are executing commands from a file
 		int executableFilePosition = splitArgs[0].find("./");
 		if (executableFilePosition != -1) {
-			addCmdsFromFile(splitArgs[0].substr(executableFilePosition), prompt);
+			addCmdsFromFile(splitArgs[0].substr(executableFilePosition), prompt, myAliasMap);
 		}
 		else {
 			cr->parseArgs(splitArgs);
 		}
+		myAliasMap = cr->aliasMap;
 		prompt = cr->prompt;
 	}
 }

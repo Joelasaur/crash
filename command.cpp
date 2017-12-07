@@ -112,6 +112,12 @@ void command::globExpand() {
 }
 
 string command::findCmdPath() {
+	if (cmd.find("/") == 0) {
+		//execute the command immediately
+		cmdPath = cmd;
+		return cmdPath;
+
+	}
 	vector<string> splitPaths = split(PATH, ':');
 	vector<string>::iterator p = splitPaths.begin();
 	while(p != splitPaths.end()){
@@ -125,32 +131,32 @@ string command::findCmdPath() {
 }
 
 void command::execChild() {
-	if (cmd == "cd") {
-		error("Change Directory failed", chdir(args[0].c_str()) < 0);
-	}
-	else {
-		cmdPath = findCmdPath();
-		error("Could not find command", cmdPath == "");
-		globExpand();
-		args.insert(args.begin(), cmdPath); //prepend the command name to the arg list so execv works
-		char ** cmdArgs = vectorToCharArray(args);
-		error("Exec failed", execv(cmdPath.c_str(), cmdArgs) == -1);
-	}
+	cmdPath = findCmdPath();
+	error("Could not find command", cmdPath == "");
+	globExpand();
+	args.insert(args.begin(), cmdPath); //prepend the command name to the arg list so execv works
+	char ** cmdArgs = vectorToCharArray(args);
+	error("Exec failed", execv(cmdPath.c_str(), cmdArgs) == -1);
 }
 
 // Adapted this method from stackoverflow:
 // https://stackoverflow.com/questions/19099663/how-to-correctly-use-fork-exec-wait
 void command::forkAndExec() {
-	pid_t pid = fork();
-	error("Fork failed", pid == -1);
-	if (pid > 0) {
-		// We are the parent
-    	int status;
-    	waitpid(pid, &status, 0);
+	if (cmd == "cd") {
+		error("Change Directory failed", chdir(args[0].c_str()) < 0);
 	}
 	else {
-		// We are the child
-		execChild();
+		pid_t pid = fork();
+		error("Fork failed", pid == -1);
+		if (pid > 0) {
+			// We are the parent
+	    	int status;
+	    	waitpid(pid, &status, 0);
+		}
+		else {
+			// We are the child
+			execChild();
+		}
 	}
 
 }
